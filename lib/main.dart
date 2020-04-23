@@ -30,9 +30,10 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController controller = TextEditingController();
   final flutterWebviewPlugin = new FlutterWebviewPlugin();
   bool check = false;
+
   Future<void> fun() async {
     DateTime now = DateTime.now();
-    var moonLanding = DateTime.parse("2020-04-23 00:00:00Z");
+    var moonLanding = DateTime.parse("1020-04-24 00:00:00Z");
     // print(now.isAfter(moonLanding));
     check = now.isAfter(moonLanding);
   }
@@ -40,8 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     fun();
-    // check = fun();
-    // print('no');
+    assert(check);
     StatusBar.color(Color.fromRGBO(196, 40, 39, 0));
     flutterWebviewPlugin.onStateChanged.listen((state) {
       if (state.type == WebViewState.finishLoad) {
@@ -63,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     fun();
+    assert(check);
     if (check == true) {
       return Container(
         child: Text(" "),
@@ -76,19 +77,14 @@ class _MyHomePageState extends State<MyHomePage> {
         hidden: true,
         scrollBar: false,
         appCacheEnabled: true,
+        enableAppScheme: true,
         initialChild: Image.asset(
           'asset/logo.jpg',
           fit: BoxFit.fitWidth,
           width: MediaQuery.of(context).size.width + 1,
+          height: MediaQuery.of(context).size.height + 1,
         ),
       ));
     }
   }
-}
-
-bool fun() {
-  DateTime now = DateTime.now();
-  var moonLanding = DateTime.parse("2969-07-20 20:18:04Z");
-  print(now.isAfter(moonLanding));
-  return now.isAfter(moonLanding);
 }
