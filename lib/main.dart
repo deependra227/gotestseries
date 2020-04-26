@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:statusbar/statusbar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'dart:async';
 
@@ -33,15 +34,35 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> fun() async {
     DateTime now = DateTime.now();
-    var moonLanding = DateTime.parse("1020-04-24 00:00:00Z");
+    var moonLanding = DateTime.parse("2020-05-24 00:00:00Z");
     // print(now.isAfter(moonLanding));
     check = now.isAfter(moonLanding);
   }
 
+  _launchURL(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  _applaunch() async {
+    flutterWebviewPlugin.onUrlChanged.listen((String url) {
+      print(url);
+      if (!(url.startsWith("http:") || url.startsWith("https:"))) {
+        flutterWebviewPlugin.goBack();
+        print("back");
+        _launchURL(url);
+      }
+    });
+  }
+
   void initState() {
-    super.initState();
     fun();
-    assert(check);
+    _applaunch();
+    super.initState();
+
     StatusBar.color(Color.fromRGBO(196, 40, 39, 0));
     flutterWebviewPlugin.onStateChanged.listen((state) {
       if (state.type == WebViewState.finishLoad) {
@@ -63,7 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     fun();
-    assert(check);
     if (check == true) {
       return Container(
         child: Text(" "),
@@ -77,6 +97,9 @@ class _MyHomePageState extends State<MyHomePage> {
         hidden: true,
         scrollBar: false,
         appCacheEnabled: true,
+        allowFileURLs: true,
+        primary: true,
+        
         enableAppScheme: true,
         initialChild: Image.asset(
           'asset/logo.jpg',
