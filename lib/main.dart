@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:statusbar/statusbar.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'dart:async';
 
@@ -29,7 +29,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TextEditingController controller = TextEditingController();
-  final flutterWebviewPlugin = new FlutterWebviewPlugin();
   bool check = false;
 
   Future<void> fun() async {
@@ -39,47 +38,25 @@ class _MyHomePageState extends State<MyHomePage> {
     check = now.isAfter(moonLanding);
   }
 
-  _launchURL(url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
+  _launchURL(url) {
+    if (canLaunch(url) != null) {
+      launch(url);
     } else {
       throw 'Could not launch $url';
     }
   }
 
-  _applaunch() async {
-    flutterWebviewPlugin.onUrlChanged.listen((String url) {
-      print(url);
-      if (!(url.startsWith("http:") || url.startsWith("https:"))) {
-        flutterWebviewPlugin.goBack();
-        print("back");
-        _launchURL(url);
-      }
-    });
-  }
-
+  var url = "https://www.gotestseries.com/";
+ 
   void initState() {
     fun();
-    _applaunch();
     super.initState();
-
     StatusBar.color(Color.fromRGBO(196, 40, 39, 0));
-    flutterWebviewPlugin.onStateChanged.listen((state) {
-      if (state.type == WebViewState.finishLoad) {
-        flutterWebviewPlugin.resize(Rect.fromLTRB(
-          MediaQuery.of(context).padding.left,
-
-          /// for safe area
-          MediaQuery.of(context).padding.top,
-
-          /// for safe area
-          MediaQuery.of(context).size.width + 1,
-
-          MediaQuery.of(context).size.height + 1,
-        ));
-      }
-    });
+   
   }
+
+  final Completer<WebViewController> _controller =
+      Completer<WebViewController>();
 
   @override
   Widget build(BuildContext context) {
@@ -90,24 +67,70 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     } else {
       return SafeArea(
-          child: WebviewScaffold(
-        url: "https://www.gotestseries.com/",
-        withJavascript: true,
-        withZoom: false,
-        hidden: true,
-        scrollBar: false,
-        appCacheEnabled: true,
-        allowFileURLs: true,
-        primary: true,
-        
-        enableAppScheme: true,
-        initialChild: Image.asset(
-          'asset/logo.jpg',
-          fit: BoxFit.fitWidth,
-          width: MediaQuery.of(context).size.width + 1,
-          height: MediaQuery.of(context).size.height + 1,
+        child: Scaffold(
+          backgroundColor: Color.fromRGBO(196, 40, 39, 1),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(40),
+            child: AppBar(
+              // title: Text("Go Test Series"),
+              automaticallyImplyLeading: true,
+              backgroundColor: Colors.transparent,
+              elevation: 0.0,
+              actions: <Widget>[
+                FutureBuilder<WebViewController>(
+                    future: _controller.future,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<WebViewController> controller) {
+                      if (controller.hasData) {
+                        return IconButton(
+                            icon: Icon(Icons.home),
+                            // color: Color.fromRGBO(196, 40, 39, 0),
+                            onPressed: () {
+                              controller.data.loadUrl(url);
+                            });
+                      }
+
+                      return Container();
+                    }),
+                SizedBox(width: (MediaQuery.of(context).size.width/4)*3,),
+                FutureBuilder<WebViewController>(
+                    future: _controller.future,
+                    builder: (BuildContext context,
+                        AsyncSnapshot<WebViewController> controller) {
+                      if (controller.hasData) {
+                        return IconButton(
+                            icon: Icon(Icons.arrow_back),
+                            // color: Color.fromRGBO(196, 40, 39, 0),
+                            onPressed: () {
+                              controller.data.goBack();
+                            });
+                      }
+
+                      return Container();
+                    }),
+              ],
+            ),
+          ),
+          body: WebView(
+            initialUrl: url,
+            javascriptMode: JavascriptMode.unrestricted,
+            onWebViewCreated: (WebViewController webViewController) {
+              _controller.complete(webViewController);
+            },
+            gestureNavigationEnabled: true,
+            navigationDelegate: (NavigationRequest request) {
+              if (!(request.url.startsWith("http:") ||
+                  request.url.startsWith("https:"))) {
+                _launchURL(request.url);
+                return NavigationDecision.prevent;
+              }
+              return NavigationDecision.navigate;
+            },
+          ),
+
         ),
-      ));
+        top: true,
+      );
     }
   }
 }
