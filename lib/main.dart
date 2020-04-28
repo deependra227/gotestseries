@@ -47,16 +47,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   var url = "https://www.gotestseries.com/";
- 
+
   void initState() {
     fun();
     super.initState();
     StatusBar.color(Color.fromRGBO(196, 40, 39, 0));
-   
   }
 
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
+  backFunction(
+      BuildContext context, AsyncSnapshot<WebViewController> controller) {
+    controller.data.goBack();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,71 +69,79 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Text(" "),
       );
     } else {
-      return SafeArea(
-        child: Scaffold(
-          backgroundColor: Color.fromRGBO(196, 40, 39, 1),
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(40),
-            child: AppBar(
-              // title: Text("Go Test Series"),
-              automaticallyImplyLeading: true,
-              backgroundColor: Colors.transparent,
-              elevation: 0.0,
-              actions: <Widget>[
-                FutureBuilder<WebViewController>(
-                    future: _controller.future,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<WebViewController> controller) {
-                      if (controller.hasData) {
-                        return IconButton(
-                            icon: Icon(Icons.home),
-                            // color: Color.fromRGBO(196, 40, 39, 0),
+      return FutureBuilder<WebViewController>(
+          future: _controller.future,
+          builder: (BuildContext context,
+              AsyncSnapshot<WebViewController> controller) {
+            return SafeArea(
+              child: WillPopScope(
+                onWillPop: () => backFunction(context, controller),
+                child: Scaffold(
+                  bottomNavigationBar: BottomAppBar(
+                    elevation: 0.0,
+                    child: ButtonBar(
+                      alignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        IconButton(
+                            icon: Icon(Icons.flash_on),
+                            iconSize: 29,
                             onPressed: () {
-                              controller.data.loadUrl(url);
-                            });
-                      }
-
-                      return Container();
-                    }),
-                SizedBox(width: (MediaQuery.of(context).size.width/4)*3,),
-                FutureBuilder<WebViewController>(
-                    future: _controller.future,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<WebViewController> controller) {
-                      if (controller.hasData) {
-                        return IconButton(
-                            icon: Icon(Icons.arrow_back),
-                            // color: Color.fromRGBO(196, 40, 39, 0),
+                              controller.data.loadUrl(
+                                  "https://gotestseries.com/index.php");
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.local_library),
+                             iconSize: 29,
                             onPressed: () {
-                              controller.data.goBack();
-                            });
+                              controller.data.loadUrl(
+                                  "https://gotestseries.com/tests.php");
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.search),
+                             iconSize: 29,
+                            onPressed: () {
+                              controller.data.loadUrl(
+                                  "https://gotestseries.com/search.php");
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.insert_chart),
+                             iconSize: 29,
+                            onPressed: () {
+                              controller.data.loadUrl(
+                                  "https://gotestseries.com/results.php");
+                            }),
+                        IconButton(
+                            icon: Icon(Icons.person),
+                             iconSize: 29,
+                            onPressed: () {
+                              controller.data.loadUrl(
+                                  "https://gotestseries.com/profile.php");
+                            }),
+                      ],
+                    ),
+                  ),
+                  backgroundColor: Color.fromRGBO(196, 40, 39, 1),
+                  body: WebView(
+                    initialUrl: url,
+                    javascriptMode: JavascriptMode.unrestricted,
+                    onWebViewCreated: (WebViewController webViewController) {
+                      _controller.complete(webViewController);
+                    },
+                    gestureNavigationEnabled: true,
+                    navigationDelegate: (NavigationRequest request) {
+                      if (!(request.url.startsWith("http:") ||
+                          request.url.startsWith("https:"))) {
+                        _launchURL(request.url);
+                        return NavigationDecision.prevent;
                       }
-
-                      return Container();
-                    }),
-              ],
-            ),
-          ),
-          body: WebView(
-            initialUrl: url,
-            javascriptMode: JavascriptMode.unrestricted,
-            onWebViewCreated: (WebViewController webViewController) {
-              _controller.complete(webViewController);
-            },
-            gestureNavigationEnabled: true,
-            navigationDelegate: (NavigationRequest request) {
-              if (!(request.url.startsWith("http:") ||
-                  request.url.startsWith("https:"))) {
-                _launchURL(request.url);
-                return NavigationDecision.prevent;
-              }
-              return NavigationDecision.navigate;
-            },
-          ),
-
-        ),
-        top: true,
-      );
+                      return NavigationDecision.navigate;
+                    },
+                  ),
+                ),
+              ),
+              top: true,
+            );
+          });
     }
   }
 }
