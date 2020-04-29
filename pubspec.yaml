@@ -27,9 +27,10 @@ dependencies:
   flutter_launcher_icons: ^0.7.4
   url_launcher: ^5.4.5
   webview_flutter: ^0.3.20+2
+  connectivity:
 
 dev_dependencies:
-  flutter_test:
+  flutter_test: 
     sdk: flutter
 
 # For information on the generic Dart part of this file, see the
