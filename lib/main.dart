@@ -49,17 +49,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  bool isLoading;
   var url = "https://www.gotestseries.com/";
   final Connectivity _connectivity = Connectivity();
 
   void initState() {
     fun();
+    isLoading = true;
     super.initState();
     StatusBar.color(Color.fromRGBO(196, 40, 39, 0));
     _connectivity.onConnectivityChanged.listen(_updateConnection);
   }
 
-alertDialogBack(BuildContext context, AsyncSnapshot<WebViewController> controller) {
+  alertDialogBack(
+      BuildContext context, AsyncSnapshot<WebViewController> controller) {
     showDialog(
       context: context,
       builder: (
@@ -86,21 +89,19 @@ alertDialogBack(BuildContext context, AsyncSnapshot<WebViewController> controlle
       },
     );
   }
+
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
   backFunction(
       BuildContext context, AsyncSnapshot<WebViewController> controller) async {
-        if(controller.data.canGoBack() != null) {
-          await che();
-    if (connectionStatus == true) {
-      controller.data.goBack();
+    if (controller.data.canGoBack() != null) {
+      await che();
+      if (connectionStatus == true) {
+        controller.data.goBack();
+      } else {
+        alertDialogBack(context, controller);
+      }
     }
-    else{
-
-      alertDialogBack(context, controller);
-    }
-    
-        }
   }
 
   alertDialog(BuildContext context, AsyncSnapshot<WebViewController> controller,
@@ -153,99 +154,111 @@ alertDialogBack(BuildContext context, AsyncSnapshot<WebViewController> controlle
                     return SafeArea(
                       child: WillPopScope(
                         onWillPop: () => backFunction(context, controller),
-                        child: Scaffold(
-                          bottomNavigationBar: BottomAppBar(
-                            elevation: 0.0,
-                            child: ButtonBar(
-                              alignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                IconButton(
-                                    icon: Icon(Icons.flash_on),
-                                    iconSize: 29,
-                                    onPressed: () {
-                                      if (connectionStatus == true) {
-                                        controller.data.loadUrl(
-                                            "https://www.gotestseries.com/index.php");
-                                      } else {
-                                        alertDialog(context, controller,
-                                            "https://www.gotestseries.com/index.php");
-                                      }
-                                    }),
-                                IconButton(
-                                    icon: Icon(Icons.local_library),
-                                    iconSize: 29,
-                                    onPressed: () {
-                                      if (connectionStatus == true) {
-                                        controller.data.loadUrl(
-                                            "https://www.gotestseries.com/tests.php");
-                                      } else {
-                                        alertDialog(context, controller,
-                                            "https://www.gotestseries.com/tests.php");
-                                      }
-                                    }),
-                                IconButton(
-                                    icon: Icon(Icons.search),
-                                    iconSize: 29,
-                                    onPressed: () {
-                                      if (connectionStatus == true) {
-                                        controller.data.loadUrl(
-                                            "https://www.gotestseries.com/search.php");
-                                      } else {
-                                        alertDialog(context, controller,
-                                            "https://www.gotestseries.com/search.php");
-                                      }
-                                    }),
-                                IconButton(
-                                    icon: Icon(Icons.insert_chart),
-                                    iconSize: 29,
-                                    onPressed: () {
-                                      if (connectionStatus == true) {
-                                        controller.data.loadUrl(
-                                            "https://www.gotestseries.com/results.php");
-                                      } else {
-                                        alertDialog(context, controller,
-                                            "https://www.gotestseries.com/results.php");
-                                      }
-                                    }),
-                                IconButton(
-                                    icon: Icon(Icons.person),
-                                    iconSize: 29,
-                                    onPressed: () {
-                                      if (connectionStatus == true) {
-                                        controller.data.loadUrl(
-                                            "https://www.gotestseries.com/profile.php");
-                                      } else {
-                                        alertDialog(context, controller,
-                                            "https://www.gotestseries.com/profile.php");
-                                      }
-                                    }),
-                              ],
+                        child: Stack(children: <Widget>[
+                          Scaffold(
+                            bottomNavigationBar: BottomAppBar(
+                              elevation: 0.0,
+                              child: ButtonBar(
+                                alignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  IconButton(
+                                      icon: Icon(Icons.flash_on),
+                                      iconSize: 29,
+                                      onPressed: () {
+                                        if (connectionStatus == true) {
+                                          controller.data.loadUrl(
+                                              "https://www.gotestseries.com/index.php");
+                                        } else {
+                                          alertDialog(context, controller,
+                                              "https://www.gotestseries.com/index.php");
+                                        }
+                                      }),
+                                  IconButton(
+                                      icon: Icon(Icons.local_library),
+                                      iconSize: 29,
+                                      onPressed: () {
+                                        if (connectionStatus == true) {
+                                          controller.data.loadUrl(
+                                              "https://www.gotestseries.com/tests.php");
+                                        } else {
+                                          alertDialog(context, controller,
+                                              "https://www.gotestseries.com/tests.php");
+                                        }
+                                      }),
+                                  IconButton(
+                                      icon: Icon(Icons.search),
+                                      iconSize: 29,
+                                      onPressed: () {
+                                        if (connectionStatus == true) {
+                                          controller.data.loadUrl(
+                                              "https://www.gotestseries.com/search.php");
+                                        } else {
+                                          alertDialog(context, controller,
+                                              "https://www.gotestseries.com/search.php");
+                                        }
+                                      }),
+                                  IconButton(
+                                      icon: Icon(Icons.insert_chart),
+                                      iconSize: 29,
+                                      onPressed: () {
+                                        if (connectionStatus == true) {
+                                          controller.data.loadUrl(
+                                              "https://www.gotestseries.com/results.php");
+                                        } else {
+                                          alertDialog(context, controller,
+                                              "https://www.gotestseries.com/results.php");
+                                        }
+                                      }),
+                                  IconButton(
+                                      icon: Icon(Icons.person),
+                                      iconSize: 29,
+                                      onPressed: () {
+                                        if (connectionStatus == true) {
+                                          controller.data.loadUrl(
+                                              "https://www.gotestseries.com/profile.php");
+                                        } else {
+                                          alertDialog(context, controller,
+                                              "https://www.gotestseries.com/profile.php");
+                                        }
+                                      }),
+                                ],
+                              ),
                             ),
+                            backgroundColor: Colors.white,
+                            body: Stack(children: <Widget>[
+                              WebView(
+                                initialUrl: url,
+                                javascriptMode: JavascriptMode.unrestricted,
+                                onWebViewCreated:
+                                    (WebViewController webViewController) {
+                                  _controller.complete(webViewController);
+                                },
+                                onPageFinished: (_) {
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                },
+                                gestureNavigationEnabled: true,
+                                navigationDelegate:
+                                    (NavigationRequest request) {
+                                  if (connectionStatus == true) {
+                                    if (!(request.url.startsWith("http:") ||
+                                        request.url.startsWith("https:"))) {
+                                      _launchURL(request.url);
+                                      return NavigationDecision.prevent;
+                                    }
+                                    return NavigationDecision.navigate;
+                                  } else {
+                                    alertDialog(
+                                        context, controller, request.url);
+                                    return NavigationDecision.prevent;
+                                  }
+                                },
+                              ),
+                            ]),
                           ),
-                          backgroundColor: Colors.white,
-                          body: WebView(
-                            initialUrl: url,
-                            javascriptMode: JavascriptMode.unrestricted,
-                            onWebViewCreated:
-                                (WebViewController webViewController) {
-                              _controller.complete(webViewController);
-                            },
-                            gestureNavigationEnabled: true,
-                            navigationDelegate: (NavigationRequest request) {
-                              if (connectionStatus == true) {
-                                if (!(request.url.startsWith("http:") ||
-                                    request.url.startsWith("https:"))) {
-                                  _launchURL(request.url);
-                                  return NavigationDecision.prevent;
-                                }
-                                return NavigationDecision.navigate;
-                              } else {
-                                alertDialog(context, controller, request.url);
-                                return NavigationDecision.prevent;
-                              }
-                            },
-                          ),
-                        ),
+                          isLoading ? Center( child: Image.asset('asset/logo.jpg')) : Container(),
+                        ]),
                       ),
                       top: true,
                     );
@@ -305,10 +318,8 @@ Future che() async {
   }
 }
 
-Future<void> _updateConnection(ConnectivityResult result) async{
+Future<void> _updateConnection(ConnectivityResult result) async {
   if (result == ConnectivityResult.none) {
     connectionStatus = false;
   }
-
-  
 }
