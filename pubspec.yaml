@@ -19,15 +19,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  flutter_inappwebview:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview.git
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   statusbar: ^1.1.0
   flutter_launcher_icons: ^0.7.4
   url_launcher: ^5.4.5
-  webview_flutter: ^0.3.20+2
-  connectivity:
 
 dev_dependencies:
   flutter_test:
